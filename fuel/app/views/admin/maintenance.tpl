@@ -1,0 +1,1 @@
+{html_anchor href='admin/login' text='Maintenance login'}

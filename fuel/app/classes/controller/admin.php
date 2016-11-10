@@ -8,7 +8,7 @@ class Controller_Admin extends Controller_Template
 	{
 		parent::before();
 
-		if (Request::active()->controller !== 'Controller_Admin' or ! in_array(Request::active()->action, array('login', 'logout')))
+		if (Request::active()->controller !== 'Controller_Admin' or ! in_array(Request::active()->action, array('login', 'logout', 'maintenance')))
 		{
 			if( ! Auth::check() )
 			{
@@ -16,6 +16,13 @@ class Controller_Admin extends Controller_Template
 			}
 		    
 		}
+	}
+
+	public function action_maintenance()
+	{
+		$data['maintenance'] = '0';
+		$this->template->title = 'Maintenance page';
+		$this->template->content = View_Smarty::forge('admin/maintenance.tpl', $data);
 	}
 
 	public function action_index()
@@ -27,6 +34,16 @@ class Controller_Admin extends Controller_Template
 
 	public function action_login()
 	{
+		$result = Model_User::getInfo();
+		$data['maintenance'] = $result['maintenance']; 
+		$data['info'] = $result['info'];
+
+		if(Input::referrer() == 'http://fuelogin.dev/admin/maintenance')
+		{
+			$data['maintenance'] = '0';
+		}
+
+
 		Auth::check() and Response::redirect('admin');
 
 		if(Input::method() == 'POST')
@@ -40,7 +57,7 @@ class Controller_Admin extends Controller_Template
 		}
 
 		$this->template->title = 'Login';
-		$this->template->content = View_Smarty::forge('admin/login.tpl');
+		$this->template->content = View_Smarty::forge('admin/login.tpl', $data);
 	}
 
 	public function action_logout()
